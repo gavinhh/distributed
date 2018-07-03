@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    status : 这个用于设置log4j2自身内部的信息输出,可以不设置,当设置成trace时,会看到log4j2内部各种详细输出
+    monitorInterval : Log4j能够自动检测修改配置文件和重新配置本身, 设置间隔秒数。
+
+    注：本配置文件的目标是将不同级别的日志输出到不同文件，最大2MB一个文件，
+    文件数据达到最大值时，旧数据会被压缩并放进指定文件夹
+    
+		共有8个级别，按照从低到高为：All < Trace < Debug < Info < Warn < Error < Fatal < OFF.
+　　　　　　All:最低等级的，用于打开所有日志记录.
+　　　　　　Trace:是追踪，就是程序推进以下，你就可以写个trace输出，所以trace应该会特别多，不过没关系，我们可以设置最低日志级别不让他输出.
+　　　　　　Debug:指出细粒度信息事件对调试应用程序是非常有帮助的.
+　　　　　　Info:消息在粗粒度级别上突出强调应用程序的运行过程.
+　　　　　　Warn:输出警告及warn以下级别的日志.
+　　　　　　Error:输出错误信息日志.
+　　　　　　Fatal:输出每个严重的错误事件将会导致应用程序的退出的日志.
+　　　　　　OFF:最高等级的，用于关闭所有日志记录.
+-->
+<Configuration status="WARN" monitorInterval="600">
+
+    <Properties>
+        <!-- 配置日志文件输出目录，此配置将日志输出到tomcat根目录下的指定文件夹 -->
+        <Property name="LOG_HOME">${sys:catalina.home}/hollyLogs</Property>
+    </Properties>
+
+    <Appenders>
+        <!--这个输出控制台的配置-->
+        <Console name="Console" target="SYSTEM_OUT">
+            <!-- 控制台只输出level及以上级别的信息(onMatch),其他的直接拒绝(onMismatch) -->
+            <ThresholdFilter level="debug" onMatch="ACCEPT" onMismatch="DENY"/>
+            <!-- 输出日志的格式 -->
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level %class{36} %L %M - %msg%xEx%n"/>
+        </Console>
+        
+    </Appenders>
+
+    <Loggers>
+        <!-- 配置日志的根节点 -->
+        <root level="info">
+            <appender-ref ref="Console"/>
+        </root>
+
+        <!-- 第三方日志系统 -->
+		<logger name="org.springframework.core" level="info"/>
+		<logger name="org.springframework.beans" level="info"/>
+		<logger name="org.springframework.context" level="info"/>
+		<logger name="org.springframework.web" level="info"/>
+		<logger name="org.springframework.aop" level="info"/>
+		<logger name="org.springframework.jndi" level="info"/>
+		<logger name="org.apache.http" level="debug"/>
+		<logger name="org.springframework.jdbc" level="info"/>
+		<!--<logger name="org.springframework.data.mongodb" level="info"/>-->
+		<logger name="org.apache.ibatis" level="debug"/>
+		<logger name="org.mongodb.driver" level="info"/>
+		<logger name="com.mchange.v2" level="info"/>
+		<logger name="org.quartz.impl" level="info"/>
+
+        <!-- 日志实例(info),其中'service-log'继承root,但是root将日志输出控制台,而'service-log'将日志输出到文件,通过属性'additivity="false"'将'service-log'的
+             的日志不再输出到控制台 -->
+        <logger name="service_log" level="info" includeLocation="true" additivity="true">
+            <appender-ref ref="service_appender"/>
+        </logger>
+
+        <!-- 日志实例(debug) -->
+        <logger name="service_log" level="debug" includeLocation="true" additivity="false">
+            <appender-ref ref="service_debug_appender"/>
+        </logger>
+    </Loggers>
+
+</Configuration>
