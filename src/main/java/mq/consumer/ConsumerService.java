@@ -1,11 +1,12 @@
 package mq.consumer;
 
 import org.springframework.amqp.core.Message;
-import org.springframework.amqp.core.MessageListener;
 import org.springframework.amqp.rabbit.core.ChannelAwareMessageListener;
 import org.springframework.stereotype.Service;
 
 import com.rabbitmq.client.Channel;
+
+import websocket.spring.BaseWebSocketServerHandler;
 
 @Service
 public class ConsumerService implements ChannelAwareMessageListener{
@@ -14,6 +15,8 @@ public class ConsumerService implements ChannelAwareMessageListener{
 	public void onMessage(Message message, Channel channel) throws Exception {
 		System.out.println("消费者消费消息："+message.toString());
 		
+		//处理业务逻辑
+		BaseWebSocketServerHandler.push(new String(message.getBody()));
 		//消息的标识，false只确认当前一个消息收到，true确认所有consumer获得的消息 (正常消费)
 		channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
 		

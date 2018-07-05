@@ -2,6 +2,7 @@ package websocket.spring;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.alibaba.fastjson.JSONObject;
@@ -24,6 +25,7 @@ import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
 import io.netty.util.CharsetUtil;
+import mq.producer.ProducerService;
 
 /**
  * websocket 具体业务处理方法
@@ -37,6 +39,9 @@ public class WebSocketServerHandler extends BaseWebSocketServerHandler {
 	private static Logger logger = LoggerFactory.getLogger(WebSocketServerHandler.class);
 
 	private WebSocketServerHandshaker handshaker;
+	
+	@Autowired
+	private ProducerService producerService;
 
 	/**
 	 * 当客户端连接成功，返回个成功信息
@@ -44,7 +49,8 @@ public class WebSocketServerHandler extends BaseWebSocketServerHandler {
 	@Override
 	public void channelActive(ChannelHandlerContext ctx) throws Exception {
 		logger.info("webSocket connect success!");
-		push(ctx, "连接成功");
+		Constant.aaChannelGroup.add(ctx.channel());
+		//Constant.pushCtxMap.put(key, ctx);
 	}
 
 	/**
@@ -101,9 +107,12 @@ public class WebSocketServerHandler extends BaseWebSocketServerHandler {
 		// 客服端发送过来的消息
 		String request = ((TextWebSocketFrame) frame).text();
 		logger.info("服务端收到：" + request);
-
-		ctx.channel().write(
-				new TextWebSocketFrame(request + " , 欢迎使用Netty WebSocket服务，现在时刻：" + new java.util.Date().toString()));
+		//将接受到的信息推送到rabbitmq
+		producerService.sendMsg(request);
+//		ctx.channel().write(new TextWebSocketFrame(request + " , 欢迎使用Netty WebSocket服务，现在时刻：" + new java.util.Date().toString()));
+		
+		//调用producerService 将消息写入rabbitmq
+		
 
 		JSONObject jsonObject = null;
 

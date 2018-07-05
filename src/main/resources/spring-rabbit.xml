@@ -54,6 +54,6 @@
         <rabbit:listener queues="queue" ref="consumerService"/>
     </rabbit:listener-container>
     
-    <bean name="consumerService" class="com.hollycrm.sys.mq.consumer.ConsumerService"></bean>
+    <bean name="consumerService" class="mq.consumer.ConsumerService"></bean>
 	
 </beans>

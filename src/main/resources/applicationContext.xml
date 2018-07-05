@@ -26,7 +26,7 @@
 	<context:annotation-config />  
 	
 	<!-- 自动扫描 -->
-	<context:component-scan base-package="websocket" />
+	<context:component-scan base-package="websocket,mq" />
 
 	
 	<import resource="spring*.xml"/>

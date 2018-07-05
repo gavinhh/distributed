@@ -27,9 +27,9 @@ public abstract class BaseWebSocketServerHandler extends SimpleChannelInboundHan
      * 群发
      * 
      * */
-    public static final void push(final ChannelGroup ctxGroup,final String message){
+    public static final void push(final String message){
         TextWebSocketFrame tws = new TextWebSocketFrame(message);
-        ctxGroup.writeAndFlush(tws);
+        Constant.aaChannelGroup.writeAndFlush(tws);
         
     }
 }
